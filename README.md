@@ -1,5 +1,5 @@
-# LoyaltyPointsApplication
-Sample Corda Application on Token SDK  considering  the Employee Loyalty Use Case.
+# HealthCoinsApplication
+Sample Corda Application on Token SDK  based on Health coin use case .
 
 *CorDapp Nodes:*
 
