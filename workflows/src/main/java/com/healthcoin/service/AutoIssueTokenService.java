@@ -1,0 +1,100 @@
+package com.healthcoin.service;
+
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import com.healthcoin.flows.HealthCoinIssuanceFlow;
+import com.healthcoin.state.HealthCoinActivityState;
+
+import net.corda.core.identity.Party;
+import net.corda.core.messaging.DataFeed;
+import net.corda.core.messaging.FlowHandle;
+import net.corda.core.node.AppServiceHub;
+import net.corda.core.node.services.CordaService;
+import net.corda.core.node.services.Vault.Page;
+import net.corda.core.node.services.Vault.Update;
+import net.corda.core.serialization.SingletonSerializeAsToken;
+import net.corda.core.transactions.SignedTransaction;
+import rx.Observer;
+import rx.Subscriber;
+
+@CordaService
+public class AutoIssueTokenService extends SingletonSerializeAsToken {
+	private AppServiceHub serviceHub;
+
+	public AutoIssueTokenService(AppServiceHub serviceHub) {
+		this.serviceHub = serviceHub;
+		// code ran at service creation / node startup
+		init();
+	}
+
+	private void init() {
+		System.out.println("In Service");
+		issueTokens();
+
+	}
+
+	private void issueTokens() {
+		Party ourIdentity = serviceHub.getMyInfo().getLegalIdentities().get(0);
+		Optional<Party> adminParty=serviceHub.getIdentityService().partiesFromName("Admin", true).stream().findFirst();
+		
+		if(ourIdentity.equals(adminParty.get())) {
+			DataFeed<Page<HealthCoinActivityState>, Update<HealthCoinActivityState>> dataFeed = serviceHub.getVaultService()
+					.trackBy(HealthCoinActivityState.class);
+			
+			Observer<Update<HealthCoinActivityState>> observer = new Observer<Update<HealthCoinActivityState>>() {
+
+				@Override
+				public void onCompleted() {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onError(Throwable e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onNext(Update<HealthCoinActivityState> t) {
+					// TODO Auto-generated method stub
+					System.out.println("Subscribe");
+					processState(t);
+				}
+	            
+	        };
+	        dataFeed.getUpdates().subscribe(observer);
+		}
+		
+		//dataFeed.getUpdates().subscribe(s -> processState(s));
+
+	}
+
+	private void processState(Update<HealthCoinActivityState> updates) {
+	//	LoyalityActivityState state;
+		updates.getProduced().forEach(message -> {
+			HealthCoinActivityState state = message.getState().getData();
+			System.out.println("Inside Process:-"+state);
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			
+			if (state.getCaloriesBurned() > 1000) {
+				executor.submit(() -> {
+					// String threadName = Thread.currentThread().getName();
+				FlowHandle<SignedTransaction> signTX=serviceHub.startFlow(
+							new HealthCoinIssuanceFlow("DemoCoin", new Long(100), state.getCompletedBy()));
+				
+				});
+			} else {
+				executor.submit(() -> {
+					// String threadName = Thread.currentThread().getName();
+					serviceHub.startFlow(
+							new HealthCoinIssuanceFlow("DemoCoin", new Long(50), state.getCompletedBy()));
+				});
+			}
+		});
+	//	return state;
+	}
+}
