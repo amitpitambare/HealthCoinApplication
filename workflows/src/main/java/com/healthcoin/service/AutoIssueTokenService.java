@@ -84,14 +84,14 @@ public class AutoIssueTokenService extends SingletonSerializeAsToken {
 				executor.submit(() -> {
 					// String threadName = Thread.currentThread().getName();
 				FlowHandle<SignedTransaction> signTX=serviceHub.startFlow(
-							new HealthCoinIssuanceFlow("DemoCoin", new Long(100), state.getCompletedBy()));
+							new HealthCoinIssuanceFlow("HealthCoin", new Long(100), state.getCompletedBy()));
 				
 				});
 			} else {
 				executor.submit(() -> {
 					// String threadName = Thread.currentThread().getName();
 					serviceHub.startFlow(
-							new HealthCoinIssuanceFlow("DemoCoin", new Long(50), state.getCompletedBy()));
+							new HealthCoinIssuanceFlow("HealthCoin", new Long(50), state.getCompletedBy()));
 				});
 			}
 		});
