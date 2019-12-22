@@ -49,7 +49,7 @@ public class Controller {
 		
 		
 		
-		  TokenType token = new TokenType("DemoCoin",2);
+		  TokenType token = new TokenType("HealthCoin",2);
 		QueryCriteria isserCriteria=QueryUtilitiesKt.tokenAmountWithIssuerCriteria(token, gpoParty);
 		
 		

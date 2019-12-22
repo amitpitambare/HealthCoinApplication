@@ -31,70 +31,69 @@ public class AutoIssueTokenService extends SingletonSerializeAsToken {
 	}
 
 	private void init() {
-		System.out.println("In Service");
+
 		issueTokens();
 
 	}
 
 	private void issueTokens() {
 		Party ourIdentity = serviceHub.getMyInfo().getLegalIdentities().get(0);
-		Optional<Party> adminParty=serviceHub.getIdentityService().partiesFromName("Admin", true).stream().findFirst();
-		
-		if(ourIdentity.equals(adminParty.get())) {
-			DataFeed<Page<HealthCoinActivityState>, Update<HealthCoinActivityState>> dataFeed = serviceHub.getVaultService()
-					.trackBy(HealthCoinActivityState.class);
-			
+		Optional<Party> adminParty = serviceHub.getIdentityService().partiesFromName("Admin", true).stream()
+				.findFirst();
+
+		if (ourIdentity.equals(adminParty.get())) {
+			DataFeed<Page<HealthCoinActivityState>, Update<HealthCoinActivityState>> dataFeed = serviceHub
+					.getVaultService().trackBy(HealthCoinActivityState.class);
+
 			Observer<Update<HealthCoinActivityState>> observer = new Observer<Update<HealthCoinActivityState>>() {
 
 				@Override
 				public void onCompleted() {
 					// TODO Auto-generated method stub
-					
+
 				}
 
 				@Override
 				public void onError(Throwable e) {
 					// TODO Auto-generated method stub
-					
+
 				}
 
 				@Override
 				public void onNext(Update<HealthCoinActivityState> t) {
-					// TODO Auto-generated method stub
-					System.out.println("Subscribe");
+
 					processState(t);
 				}
-	            
-	        };
-	        dataFeed.getUpdates().subscribe(observer);
+
+			};
+			dataFeed.getUpdates().subscribe(observer);
 		}
-		
-		//dataFeed.getUpdates().subscribe(s -> processState(s));
+
+		// dataFeed.getUpdates().subscribe(s -> processState(s));
 
 	}
 
 	private void processState(Update<HealthCoinActivityState> updates) {
-	//	LoyalityActivityState state;
+		// LoyalityActivityState state;
 		updates.getProduced().forEach(message -> {
 			HealthCoinActivityState state = message.getState().getData();
-			System.out.println("Inside Process:-"+state);
 			ExecutorService executor = Executors.newSingleThreadExecutor();
-			
+
 			if (state.getCaloriesBurned() > 1000) {
 				executor.submit(() -> {
-					// String threadName = Thread.currentThread().getName();
-				FlowHandle<SignedTransaction> signTX=serviceHub.startFlow(
-							new HealthCoinIssuanceFlow("DemoCoin", new Long(100), state.getCompletedBy()));
-				
+
+					serviceHub
+							.startFlow(new HealthCoinIssuanceFlow("HealthCoin", new Long(100), state.getCompletedBy()));
+
 				});
 			} else {
 				executor.submit(() -> {
-					// String threadName = Thread.currentThread().getName();
-					serviceHub.startFlow(
-							new HealthCoinIssuanceFlow("DemoCoin", new Long(50), state.getCompletedBy()));
+
+					serviceHub
+							.startFlow(new HealthCoinIssuanceFlow("HealthCoin", new Long(50), state.getCompletedBy()));
 				});
 			}
 		});
-	//	return state;
+		// return state;
 	}
 }
