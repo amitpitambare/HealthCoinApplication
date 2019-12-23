@@ -16,6 +16,19 @@ Sample Corda Application on Token SDK  based on Health coin use case .
 * 3. The `Employee` party can then review and view the HealthCoins issued by `Admin` and redeem those by transfering those to the `Merchant` party.
 * 4. The `Merchant` party - offline review and validate the `HealthCoins` data received along with `FungibleToken` state. If everything is good, he can initiate the `RedeemHealthCoinFlow` flow to redeem the tokens . 
 
+### Running the Health Coin Application.
+
+First  clone the source code from the git repository.
+
+    git clone https://github.com/amitpitambare/HealthCoinApplication.git
+    cd HealthCoinApplication
+   
+
+Once you have cloned   the repository, you should open it with Eclipse/STS/IntelliJ. 
+You can `deployNodes` to create four nodes (Admin.Employee,Merchant and Notary):
+
+    ./gradlew clean deployNodes
+    ./build/nodes/runnodes
 
 ## Interacting with the CorDapp via Corda Shell
 
@@ -58,6 +71,11 @@ If we check and query the states we can find that the tokens are consumed and no
 ```console    
 run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.FungibleToken
 ``` 
+
+# Future Scope
+
+* Make use of Corda Accounts in `Employee` Node so that every employee's data is logically segregated in ledger.
+* Create a Custom Token type so that we can custom token properties.
 
 
 

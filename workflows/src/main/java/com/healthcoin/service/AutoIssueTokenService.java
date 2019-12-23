@@ -1,7 +1,6 @@
 package com.healthcoin.service;
 
 import java.util.Optional;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,7 +17,6 @@ import net.corda.core.node.services.Vault.Update;
 import net.corda.core.serialization.SingletonSerializeAsToken;
 import net.corda.core.transactions.SignedTransaction;
 import rx.Observer;
-import rx.Subscriber;
 
 @CordaService
 public class AutoIssueTokenService extends SingletonSerializeAsToken {
@@ -85,12 +83,17 @@ public class AutoIssueTokenService extends SingletonSerializeAsToken {
 					serviceHub
 							.startFlow(new HealthCoinIssuanceFlow("HealthCoin", new Long(100), state.getCompletedBy()));
 
+					// String threadName = Thread.currentThread().getName();
+					FlowHandle<SignedTransaction> signTX = serviceHub
+							.startFlow(new HealthCoinIssuanceFlow("HealthCoin", new Long(100), state.getCompletedBy()));
+
 				});
 			} else {
 				executor.submit(() -> {
 
 					serviceHub
 							.startFlow(new HealthCoinIssuanceFlow("HealthCoin", new Long(50), state.getCompletedBy()));
+
 				});
 			}
 		});
