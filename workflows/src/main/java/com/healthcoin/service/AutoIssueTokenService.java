@@ -9,13 +9,11 @@ import com.healthcoin.state.HealthCoinActivityState;
 
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.DataFeed;
-import net.corda.core.messaging.FlowHandle;
 import net.corda.core.node.AppServiceHub;
 import net.corda.core.node.services.CordaService;
 import net.corda.core.node.services.Vault.Page;
 import net.corda.core.node.services.Vault.Update;
 import net.corda.core.serialization.SingletonSerializeAsToken;
-import net.corda.core.transactions.SignedTransaction;
 import rx.Observer;
 
 @CordaService
@@ -82,11 +80,6 @@ public class AutoIssueTokenService extends SingletonSerializeAsToken {
 
 					serviceHub
 							.startFlow(new HealthCoinIssuanceFlow("HealthCoin", new Long(100), state.getCompletedBy()));
-
-					// String threadName = Thread.currentThread().getName();
-					FlowHandle<SignedTransaction> signTX = serviceHub
-							.startFlow(new HealthCoinIssuanceFlow("HealthCoin", new Long(100), state.getCompletedBy()));
-
 				});
 			} else {
 				executor.submit(() -> {
